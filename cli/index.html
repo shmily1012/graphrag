@@ -1399,24 +1399,25 @@
 <p>Options:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>  --config PATH                   The configuration to use.
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  --root PATH                     The project root directory.  \[default: .]
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  --verbose / --no-verbose        Run the indexing pipeline with verbose
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>                                  logging  \[default: no-verbose]
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  --memprofile / --no-memprofile  Run the indexing pipeline with memory
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                                  profiling  \[default: no-memprofile]
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  --resume TEXT                   Resume a given indexing run
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  --logger [rich|print|none]      The progress logger to use.  \[default:
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                                  rich]
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  --dry-run / --no-dry-run        Run the indexing pipeline without executing
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>                                  any steps to inspect and validate the
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>                                  configuration.  \[default: no-dry-run]
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>  --cache / --no-cache            Use LLM cache.  \[default: cache]
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>  --skip-validation / --no-skip-validation
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>                                  Skip any preflight validation. Useful when
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                                  running no LLM steps.  \[default: no-skip-
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                                  validation]
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>  --output PATH                   Indexing pipeline output directory.
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>                                  Overrides storage.base_dir in the
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>                                  configuration file.
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  --method [standard|fast]        The indexing method to use.  \[default:
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>                                  standard]
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  --verbose / --no-verbose        Run the indexing pipeline with verbose
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                                  logging  \[default: no-verbose]
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  --memprofile / --no-memprofile  Run the indexing pipeline with memory
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                                  profiling  \[default: no-memprofile]
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  --logger [rich|print|none]      The progress logger to use.  \[default:
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>                                  rich]
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>  --dry-run / --no-dry-run        Run the indexing pipeline without executing
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>                                  any steps to inspect and validate the
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>                                  configuration.  \[default: no-dry-run]
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>  --cache / --no-cache            Use LLM cache.  \[default: cache]
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>  --skip-validation / --no-skip-validation
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                                  Skip any preflight validation. Useful when
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                                  running no LLM steps.  \[default: no-skip-
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>                                  validation]
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>  --output PATH                   Indexing pipeline output directory.
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>                                  Overrides output.base_dir in the
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>                                  configuration file.
 </code></pre></div>
 <h2 id="init">init</h2>
 <p>Generate a default configuration file.</p>
@@ -1424,7 +1425,9 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a> init [OPTIONS]
 </code></pre></div>
 <p>Options:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>  --root PATH  The project root directory.  \[required]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>  --root PATH           The project root directory.  \[required]
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  --force / --no-force  Force initialization even if the project already
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                        exists.  \[default: no-force]
 </code></pre></div>
 <h2 id="prompt-tune">prompt-tune</h2>
 <p>Generate custom graphrag prompts with your own data (i.e. auto templating).</p>
@@ -1472,52 +1475,55 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a> query [OPTIONS]
 </code></pre></div>
 <p>Options:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>  --method [local|global|drift]   The query algorithm to use.  \[required]
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  --query TEXT                    The query to execute.  \[required]
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  --config PATH                   The configuration to use.
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  --data PATH                     Indexing pipeline output directory (i.e.
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>                                  contains the parquet files).
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>  --root PATH                     The project root directory.  \[default: .]
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  --community-level INTEGER       The community level in the Leiden community
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>                                  hierarchy from which to load community
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>                                  reports. Higher values represent reports
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>                                  from smaller communities.  \[default: 2]
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>  --dynamic-community-selection / --no-dynamic-community-selection
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>                                  Use global search with dynamic community
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>                                  selection.  \[default: no-dynamic-community-
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>                                  selection]
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>  --response-type TEXT            Free form text describing the response type
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>                                  and format, can be anything, e.g. Multiple
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>                                  Paragraphs, Single Paragraph, Single
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>                                  Sentence, List of 3-7 Points, Single Page,
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>                                  Multi-Page Report. Default: Multiple
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>                                  Paragraphs  \[default: Multiple Paragraphs]
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>  --streaming / --no-streaming    Print response in a streaming manner.
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>                                  \[default: no-streaming]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>  --method [local|global|drift|basic]
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>                                  The query algorithm to use.  \[required]
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  --query TEXT                    The query to execute.  \[required]
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  --config PATH                   The configuration to use.
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  --data PATH                     Indexing pipeline output directory (i.e.
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>                                  contains the parquet files).
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  --root PATH                     The project root directory.  \[default: .]
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>  --community-level INTEGER       The community level in the Leiden community
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>                                  hierarchy from which to load community
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>                                  reports. Higher values represent reports
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>                                  from smaller communities.  \[default: 2]
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>  --dynamic-community-selection / --no-dynamic-community-selection
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>                                  Use global search with dynamic community
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>                                  selection.  \[default: no-dynamic-community-
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>                                  selection]
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>  --response-type TEXT            Free form text describing the response type
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>                                  and format, can be anything, e.g. Multiple
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>                                  Paragraphs, Single Paragraph, Single
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>                                  Sentence, List of 3-7 Points, Single Page,
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>                                  Multi-Page Report. Default: Multiple
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>                                  Paragraphs  \[default: Multiple Paragraphs]
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>  --streaming / --no-streaming    Print response in a streaming manner.
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>                                  \[default: no-streaming]
 </code></pre></div>
 <h2 id="update">update</h2>
 <p>Update an existing knowledge graph index.</p>
-<p>Applies a default storage configuration (if not provided by config), saving the new index to the local file system in the <code>update_output</code> folder.</p>
+<p>Applies a default output configuration (if not provided by config), saving the new index to the local file system in the <code>update_output</code> folder.</p>
 <p>Usage:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a> update [OPTIONS]
 </code></pre></div>
 <p>Options:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>  --config PATH                   The configuration to use.
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  --root PATH                     The project root directory.  \[default: .]
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  --verbose / --no-verbose        Run the indexing pipeline with verbose
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>                                  logging  \[default: no-verbose]
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>  --memprofile / --no-memprofile  Run the indexing pipeline with memory
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>                                  profiling  \[default: no-memprofile]
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>  --logger [rich|print|none]      The progress logger to use.  \[default:
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>                                  rich]
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>  --cache / --no-cache            Use LLM cache.  \[default: cache]
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>  --skip-validation / --no-skip-validation
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>                                  Skip any preflight validation. Useful when
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>                                  running no LLM steps.  \[default: no-skip-
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>                                  validation]
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  --output PATH                   Indexing pipeline output directory.
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>                                  Overrides storage.base_dir in the
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>                                  configuration file.
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  --method [standard|fast]        The indexing method to use.  \[default:
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>                                  standard]
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>  --verbose / --no-verbose        Run the indexing pipeline with verbose
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>                                  logging  \[default: no-verbose]
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>  --memprofile / --no-memprofile  Run the indexing pipeline with memory
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>                                  profiling  \[default: no-memprofile]
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>  --logger [rich|print|none]      The progress logger to use.  \[default:
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>                                  rich]
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>  --cache / --no-cache            Use LLM cache.  \[default: cache]
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>  --skip-validation / --no-skip-validation
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>                                  Skip any preflight validation. Useful when
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>                                  running no LLM steps.  \[default: no-skip-
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>                                  validation]
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>  --output PATH                   Indexing pipeline output directory.
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>                                  Overrides output.base_dir in the
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>                                  configuration file.
 </code></pre></div>
 
 

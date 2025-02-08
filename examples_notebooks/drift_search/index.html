@@ -1617,6 +1617,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                     processEnvironments: true
                 },
                 displayAlign: 'center',
+                messageStyle: 'none',
                 CommonHTML: {
                     linebreaks: {
                     automatic: true
@@ -1862,44 +1863,48 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">tiktoken</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
 
-<span class="kn">from</span> <span class="nn">graphrag.query.indexer_adapters</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.config.models.drift_search_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRIFTSearchConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.query.indexer_adapters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">read_indexer_entities</span><span class="p">,</span>
     <span class="n">read_indexer_relationships</span><span class="p">,</span>
+    <span class="n">read_indexer_report_embeddings</span><span class="p">,</span>
     <span class="n">read_indexer_reports</span><span class="p">,</span>
     <span class="n">read_indexer_text_units</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">graphrag.query.llm.oai.chat_openai</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
-<span class="kn">from</span> <span class="nn">graphrag.query.llm.oai.embedding</span> <span class="kn">import</span> <span class="n">OpenAIEmbedding</span>
-<span class="kn">from</span> <span class="nn">graphrag.query.llm.oai.typing</span> <span class="kn">import</span> <span class="n">OpenaiApiType</span>
-<span class="kn">from</span> <span class="nn">graphrag.query.structured_search.drift_search.drift_context</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.query.llm.oai.chat_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.query.llm.oai.embedding</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIEmbedding</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.query.llm.oai.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenaiApiType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.query.structured_search.drift_search.drift_context</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DRIFTSearchContextBuilder</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">graphrag.query.structured_search.drift_search.search</span> <span class="kn">import</span> <span class="n">DRIFTSearch</span>
-<span class="kn">from</span> <span class="nn">graphrag.vector_stores.lancedb</span> <span class="kn">import</span> <span class="n">LanceDBVectorStore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.query.structured_search.drift_search.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRIFTSearch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">graphrag.vector_stores.lancedb</span><span class="w"> </span><span class="kn">import</span> <span class="n">LanceDBVectorStore</span>
 
 <span class="n">INPUT_DIR</span> <span class="o">=</span> <span class="s2">"./inputs/operation dulce"</span>
 <span class="n">LANCEDB_URI</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">INPUT_DIR</span><span class="si">}</span><span class="s2">/lancedb"</span>
 
-<span class="n">COMMUNITY_REPORT_TABLE</span> <span class="o">=</span> <span class="s2">"create_final_community_reports"</span>
-<span class="n">ENTITY_TABLE</span> <span class="o">=</span> <span class="s2">"create_final_nodes"</span>
-<span class="n">ENTITY_EMBEDDING_TABLE</span> <span class="o">=</span> <span class="s2">"create_final_entities"</span>
-<span class="n">RELATIONSHIP_TABLE</span> <span class="o">=</span> <span class="s2">"create_final_relationships"</span>
-<span class="n">COVARIATE_TABLE</span> <span class="o">=</span> <span class="s2">"create_final_covariates"</span>
-<span class="n">TEXT_UNIT_TABLE</span> <span class="o">=</span> <span class="s2">"create_final_text_units"</span>
+<span class="n">COMMUNITY_REPORT_TABLE</span> <span class="o">=</span> <span class="s2">"community_reports"</span>
+<span class="n">COMMUNITY_TABLE</span> <span class="o">=</span> <span class="s2">"communities"</span>
+<span class="n">ENTITY_TABLE</span> <span class="o">=</span> <span class="s2">"entities"</span>
+<span class="n">RELATIONSHIP_TABLE</span> <span class="o">=</span> <span class="s2">"relationships"</span>
+<span class="n">COVARIATE_TABLE</span> <span class="o">=</span> <span class="s2">"covariates"</span>
+<span class="n">TEXT_UNIT_TABLE</span> <span class="o">=</span> <span class="s2">"text_units"</span>
 <span class="n">COMMUNITY_LEVEL</span> <span class="o">=</span> <span class="mi">2</span>
 
 
 <span class="c1"># read nodes table to get community and degree data</span>
 <span class="n">entity_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">INPUT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENTITY_TABLE</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">)</span>
-<span class="n">entity_embedding_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">INPUT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENTITY_EMBEDDING_TABLE</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">)</span>
+<span class="n">community_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">INPUT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">COMMUNITY_TABLE</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">)</span>
 
-<span class="n">entities</span> <span class="o">=</span> <span class="n">read_indexer_entities</span><span class="p">(</span><span class="n">entity_df</span><span class="p">,</span> <span class="n">entity_embedding_df</span><span class="p">,</span> <span class="n">COMMUNITY_LEVEL</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Entity df columns: </span><span class="si">{</span><span class="n">entity_df</span><span class="o">.</span><span class="n">columns</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">entities</span> <span class="o">=</span> <span class="n">read_indexer_entities</span><span class="p">(</span><span class="n">entity_df</span><span class="p">,</span> <span class="n">community_df</span><span class="p">,</span> <span class="n">COMMUNITY_LEVEL</span><span class="p">)</span>
 
 <span class="c1"># load description embeddings to an in-memory lancedb vectorstore</span>
 <span class="c1"># to connect to a remote db, specify url and port values.</span>
@@ -1907,6 +1912,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="n">collection_name</span><span class="o">=</span><span class="s2">"default-entity-description"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">description_embedding_store</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_uri</span><span class="o">=</span><span class="n">LANCEDB_URI</span><span class="p">)</span>
+
+<span class="n">full_content_embedding_store</span> <span class="o">=</span> <span class="n">LanceDBVectorStore</span><span class="p">(</span>
+    <span class="n">collection_name</span><span class="o">=</span><span class="s2">"default-community-full_content"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">full_content_embedding_store</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_uri</span><span class="o">=</span><span class="n">LANCEDB_URI</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Entity count: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">entity_df</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="n">entity_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -1929,9 +1939,11 @@ from pathlib import Path
 import pandas as pd
 import tiktoken
 
+from graphrag.config.models.drift_search_config import DRIFTSearchConfig
 from graphrag.query.indexer_adapters import (
     read_indexer_entities,
     read_indexer_relationships,
+    read_indexer_report_embeddings,
     read_indexer_reports,
     read_indexer_text_units,
 )
@@ -1947,20 +1959,22 @@ from graphrag.vector_stores.lancedb import LanceDBVectorStore
 INPUT_DIR = "./inputs/operation dulce"
 LANCEDB_URI = f"{INPUT_DIR}/lancedb"
 
-COMMUNITY_REPORT_TABLE = "create_final_community_reports"
-ENTITY_TABLE = "create_final_nodes"
-ENTITY_EMBEDDING_TABLE = "create_final_entities"
-RELATIONSHIP_TABLE = "create_final_relationships"
-COVARIATE_TABLE = "create_final_covariates"
-TEXT_UNIT_TABLE = "create_final_text_units"
+COMMUNITY_REPORT_TABLE = "community_reports"
+COMMUNITY_TABLE = "communities"
+ENTITY_TABLE = "entities"
+RELATIONSHIP_TABLE = "relationships"
+COVARIATE_TABLE = "covariates"
+TEXT_UNIT_TABLE = "text_units"
 COMMUNITY_LEVEL = 2
 
 
 # read nodes table to get community and degree data
 entity_df = pd.read_parquet(f"{INPUT_DIR}/{ENTITY_TABLE}.parquet")
-entity_embedding_df = pd.read_parquet(f"{INPUT_DIR}/{ENTITY_EMBEDDING_TABLE}.parquet")
+community_df = pd.read_parquet(f"{INPUT_DIR}/{COMMUNITY_TABLE}.parquet")
 
-entities = read_indexer_entities(entity_df, entity_embedding_df, COMMUNITY_LEVEL)
+print(f"Entity df columns: {entity_df.columns}")
+
+entities = read_indexer_entities(entity_df, community_df, COMMUNITY_LEVEL)
 
 # load description embeddings to an in-memory lancedb vectorstore
 # to connect to a remote db, specify url and port values.
@@ -1968,6 +1982,11 @@ description_embedding_store = LanceDBVectorStore(
     collection_name="default-entity-description",
 )
 description_embedding_store.connect(db_uri=LANCEDB_URI)
+
+full_content_embedding_store = LanceDBVectorStore(
+    collection_name="default-community-full_content",
+)
+full_content_embedding_store.connect(db_uri=LANCEDB_URI)
 
 print(f"Entity count: {len(entity_df)}")
 entity_df.head()
@@ -1996,74 +2015,80 @@ text_unit_df.head()</div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
 <pre>
 <span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">ValueError</span>                                Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[2], line 38</span>
-<span class="ansi-green-intense-fg ansi-bold">     35</span> entity_df <span style="color: rgb(98,98,98)">=</span> pd<span style="color: rgb(98,98,98)">.</span>read_parquet(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>INPUT_DIR<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">/</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>ENTITY_TABLE<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">.parquet</span><span style="color: rgb(175,0,0)">"</span>)
-<span class="ansi-green-intense-fg ansi-bold">     36</span> entity_embedding_df <span style="color: rgb(98,98,98)">=</span> pd<span style="color: rgb(98,98,98)">.</span>read_parquet(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>INPUT_DIR<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">/</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>ENTITY_EMBEDDING_TABLE<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">.parquet</span><span style="color: rgb(175,0,0)">"</span>)
-<span class="ansi-green-fg">---&gt; 38</span> entities <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">read_indexer_entities</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">entity_df</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">entity_embedding_df</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">COMMUNITY_LEVEL</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">     40</span> <span style="color: rgb(95,135,135)"># load description embeddings to an in-memory lancedb vectorstore</span>
-<span class="ansi-green-intense-fg ansi-bold">     41</span> <span style="color: rgb(95,135,135)"># to connect to a remote db, specify url and port values.</span>
-<span class="ansi-green-intense-fg ansi-bold">     42</span> description_embedding_store <span style="color: rgb(98,98,98)">=</span> LanceDBVectorStore(
-<span class="ansi-green-intense-fg ansi-bold">     43</span>     collection_name<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">default-entity-description</span><span style="color: rgb(175,0,0)">"</span>,
-<span class="ansi-green-intense-fg ansi-bold">     44</span> )
+<span class="ansi-red-fg">FileNotFoundError</span>                         Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[2], line 37</span>
+<span class="ansi-green-intense-fg ansi-bold">     33</span> COMMUNITY_LEVEL <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(98,98,98)">2</span>
+<span class="ansi-green-intense-fg ansi-bold">     36</span> <span style="color: rgb(95,135,135)"># read nodes table to get community and degree data</span>
+<span class="ansi-green-fg">---&gt; 37</span> entity_df <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">pd</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">read_parquet</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">f</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,95,135)">{</span><span class="ansi-yellow-bg">INPUT_DIR</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,95,135)">}</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">/</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,95,135)">{</span><span class="ansi-yellow-bg">ENTITY_TABLE</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,95,135)">}</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">.parquet</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     38</span> community_df <span style="color: rgb(98,98,98)">=</span> pd<span style="color: rgb(98,98,98)">.</span>read_parquet(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>INPUT_DIR<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">/</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>COMMUNITY_TABLE<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">.parquet</span><span style="color: rgb(175,0,0)">"</span>)
+<span class="ansi-green-intense-fg ansi-bold">     40</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">Entity df columns: </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>entity_df<span style="color: rgb(98,98,98)">.</span>columns<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">"</span>)
 
-File <span class="ansi-green-fg">~/work/graphrag/graphrag/graphrag/query/indexer_adapters.py:154</span>, in <span class="ansi-cyan-fg">read_indexer_entities</span><span class="ansi-blue-fg">(final_nodes, final_entities, community_level)</span>
-<span class="ansi-green-intense-fg ansi-bold">    149</span> final_df <span style="color: rgb(98,98,98)">=</span> nodes_df<span style="color: rgb(98,98,98)">.</span>merge(entities_df, on<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">id</span><span style="color: rgb(175,0,0)">"</span>, how<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">inner</span><span style="color: rgb(175,0,0)">"</span>)<span style="color: rgb(98,98,98)">.</span>drop_duplicates(
-<span class="ansi-green-intense-fg ansi-bold">    150</span>     subset<span style="color: rgb(98,98,98)">=</span>[<span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">id</span><span style="color: rgb(175,0,0)">"</span>]
-<span class="ansi-green-intense-fg ansi-bold">    151</span> )
-<span class="ansi-green-intense-fg ansi-bold">    153</span> <span style="color: rgb(95,135,135)"># read entity dataframe to knowledge model objects</span>
-<span class="ansi-green-fg">--&gt; 154</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">read_entities</span><span class="ansi-yellow-bg">(</span>
-<span class="ansi-green-intense-fg ansi-bold">    155</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">df</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">final_df</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    156</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">id_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">id</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    157</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">title_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">title</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    158</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">type_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">type</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    159</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">short_id_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">human_readable_id</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    160</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">description_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">description</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    161</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">community_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">community</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    162</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">rank_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">degree</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    163</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">name_embedding_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">None</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    164</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">description_embedding_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">description_embedding</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    165</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">text_unit_ids_col</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">text_unit_ids</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-intense-fg ansi-bold">    166</span> <span class="ansi-yellow-bg">)</span>
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/parquet.py:667</span>, in <span class="ansi-cyan-fg">read_parquet</span><span class="ansi-blue-fg">(path, engine, columns, storage_options, use_nullable_dtypes, dtype_backend, filesystem, filters, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    664</span>     use_nullable_dtypes <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">False</span>
+<span class="ansi-green-intense-fg ansi-bold">    665</span> check_dtype_backend(dtype_backend)
+<span class="ansi-green-fg">--&gt; 667</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">impl</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">read</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-intense-fg ansi-bold">    668</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">path</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    669</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">columns</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">columns</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    670</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">filters</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">filters</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    671</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    672</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">use_nullable_dtypes</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">use_nullable_dtypes</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    673</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">dtype_backend</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">dtype_backend</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    674</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">filesystem</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">filesystem</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    675</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    676</span> <span class="ansi-yellow-bg">)</span>
 
-File <span class="ansi-green-fg">~/work/graphrag/graphrag/graphrag/query/input/loaders/dfs.py:44</span>, in <span class="ansi-cyan-fg">read_entities</span><span class="ansi-blue-fg">(df, id_col, short_id_col, title_col, type_col, description_col, name_embedding_col, description_embedding_col, community_col, text_unit_ids_col, rank_col, attributes_cols)</span>
-<span class="ansi-green-intense-fg ansi-bold">     39</span> entities <span style="color: rgb(98,98,98)">=</span> []
-<span class="ansi-green-intense-fg ansi-bold">     40</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> idx, row <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> df<span style="color: rgb(98,98,98)">.</span>iterrows():
-<span class="ansi-green-intense-fg ansi-bold">     41</span>     entity <span style="color: rgb(98,98,98)">=</span> Entity(
-<span class="ansi-green-intense-fg ansi-bold">     42</span>         <span style="color: rgb(0,135,0)">id</span><span style="color: rgb(98,98,98)">=</span>to_str(row, id_col),
-<span class="ansi-green-intense-fg ansi-bold">     43</span>         short_id<span style="color: rgb(98,98,98)">=</span>to_optional_str(row, short_id_col) <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> short_id_col <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span style="color: rgb(0,135,0)">str</span>(idx),
-<span class="ansi-green-fg">---&gt; 44</span>         title<span style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">to_str</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">row</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">title_col</span><span class="ansi-yellow-bg">)</span>,
-<span class="ansi-green-intense-fg ansi-bold">     45</span>         <span style="color: rgb(0,135,0)">type</span><span style="color: rgb(98,98,98)">=</span>to_optional_str(row, type_col),
-<span class="ansi-green-intense-fg ansi-bold">     46</span>         description<span style="color: rgb(98,98,98)">=</span>to_optional_str(row, description_col),
-<span class="ansi-green-intense-fg ansi-bold">     47</span>         name_embedding<span style="color: rgb(98,98,98)">=</span>to_optional_list(row, name_embedding_col, item_type<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">float</span>),
-<span class="ansi-green-intense-fg ansi-bold">     48</span>         description_embedding<span style="color: rgb(98,98,98)">=</span>to_optional_list(
-<span class="ansi-green-intense-fg ansi-bold">     49</span>             row, description_embedding_col, item_type<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">float</span>
-<span class="ansi-green-intense-fg ansi-bold">     50</span>         ),
-<span class="ansi-green-intense-fg ansi-bold">     51</span>         community_ids<span style="color: rgb(98,98,98)">=</span>to_optional_list(row, community_col, item_type<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(0,135,0)">str</span>),
-<span class="ansi-green-intense-fg ansi-bold">     52</span>         text_unit_ids<span style="color: rgb(98,98,98)">=</span>to_optional_list(row, text_unit_ids_col),
-<span class="ansi-green-intense-fg ansi-bold">     53</span>         rank<span style="color: rgb(98,98,98)">=</span>to_optional_int(row, rank_col),
-<span class="ansi-green-intense-fg ansi-bold">     54</span>         attributes<span style="color: rgb(98,98,98)">=</span>(
-<span class="ansi-green-intense-fg ansi-bold">     55</span>             {col: row<span style="color: rgb(98,98,98)">.</span>get(col) <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> col <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> attributes_cols}
-<span class="ansi-green-intense-fg ansi-bold">     56</span>             <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> attributes_cols
-<span class="ansi-green-intense-fg ansi-bold">     57</span>             <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
-<span class="ansi-green-intense-fg ansi-bold">     58</span>         ),
-<span class="ansi-green-intense-fg ansi-bold">     59</span>     )
-<span class="ansi-green-intense-fg ansi-bold">     60</span>     entities<span style="color: rgb(98,98,98)">.</span>append(entity)
-<span class="ansi-green-intense-fg ansi-bold">     61</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> entities
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/parquet.py:267</span>, in <span class="ansi-cyan-fg">PyArrowImpl.read</span><span class="ansi-blue-fg">(self, path, columns, filters, use_nullable_dtypes, dtype_backend, storage_options, filesystem, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    264</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> manager <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">array</span><span style="color: rgb(175,0,0)">"</span>:
+<span class="ansi-green-intense-fg ansi-bold">    265</span>     to_pandas_kwargs[<span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">split_blocks</span><span style="color: rgb(175,0,0)">"</span>] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">True</span>  <span style="color: rgb(95,135,135)"># type: ignore[assignment]</span>
+<span class="ansi-green-fg">--&gt; 267</span> path_or_handle, handles, filesystem <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">_get_path_or_handle</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-intense-fg ansi-bold">    268</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">path</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    269</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">filesystem</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    270</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    271</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">rb</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    272</span> <span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    273</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
+<span class="ansi-green-intense-fg ansi-bold">    274</span>     pa_table <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>api<span style="color: rgb(98,98,98)">.</span>parquet<span style="color: rgb(98,98,98)">.</span>read_table(
+<span class="ansi-green-intense-fg ansi-bold">    275</span>         path_or_handle,
+<span class="ansi-green-intense-fg ansi-bold">    276</span>         columns<span style="color: rgb(98,98,98)">=</span>columns,
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    279</span>         <span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span>kwargs,
+<span class="ansi-green-intense-fg ansi-bold">    280</span>     )
 
-File <span class="ansi-green-fg">~/work/graphrag/graphrag/graphrag/query/input/loaders/utils.py:19</span>, in <span class="ansi-cyan-fg">to_str</span><span class="ansi-blue-fg">(data, column_name)</span>
-<span class="ansi-green-intense-fg ansi-bold">     17</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">str</span>(data[column_name])
-<span class="ansi-green-intense-fg ansi-bold">     18</span> msg <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">Column </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>column_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> not found in data</span><span style="color: rgb(175,0,0)">"</span>
-<span class="ansi-green-fg">---&gt; 19</span> <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">ValueError</span>(msg)
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/parquet.py:140</span>, in <span class="ansi-cyan-fg">_get_path_or_handle</span><span class="ansi-blue-fg">(path, fs, storage_options, mode, is_dir)</span>
+<span class="ansi-green-intense-fg ansi-bold">    130</span> handles <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    131</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> (
+<span class="ansi-green-intense-fg ansi-bold">    132</span>     <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> fs
+<span class="ansi-green-intense-fg ansi-bold">    133</span>     <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> is_dir
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    138</span>     <span style="color: rgb(95,135,135)"># fsspec resources can also point to directories</span>
+<span class="ansi-green-intense-fg ansi-bold">    139</span>     <span style="color: rgb(95,135,135)"># this branch is used for example when reading from non-fsspec URLs</span>
+<span class="ansi-green-fg">--&gt; 140</span>     handles <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">get_handle</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-intense-fg ansi-bold">    141</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">path_or_handle</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">is_text</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">False</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">storage_options</span>
+<span class="ansi-green-intense-fg ansi-bold">    142</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    143</span>     fs <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    144</span>     path_or_handle <span style="color: rgb(98,98,98)">=</span> handles<span style="color: rgb(98,98,98)">.</span>handle
 
-<span class="ansi-red-fg">ValueError</span>: Column title not found in data</pre>
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/common.py:882</span>, in <span class="ansi-cyan-fg">get_handle</span><span class="ansi-blue-fg">(path_or_buf, mode, encoding, compression, memory_map, is_text, errors, storage_options)</span>
+<span class="ansi-green-intense-fg ansi-bold">    873</span>         handle <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">open</span>(
+<span class="ansi-green-intense-fg ansi-bold">    874</span>             handle,
+<span class="ansi-green-intense-fg ansi-bold">    875</span>             ioargs<span style="color: rgb(98,98,98)">.</span>mode,
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    878</span>             newline<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">"</span>,
+<span class="ansi-green-intense-fg ansi-bold">    879</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    880</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
+<span class="ansi-green-intense-fg ansi-bold">    881</span>         <span style="color: rgb(95,135,135)"># Binary mode</span>
+<span class="ansi-green-fg">--&gt; 882</span>         handle <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">open</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">handle</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">ioargs</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    883</span>     handles<span style="color: rgb(98,98,98)">.</span>append(handle)
+<span class="ansi-green-intense-fg ansi-bold">    885</span> <span style="color: rgb(95,135,135)"># Convert BytesIO or file objects passed with an encoding</span>
+
+<span class="ansi-red-fg">FileNotFoundError</span>: [Errno 2] No such file or directory: './inputs/operation dulce/entities.parquet'</pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2092,7 +2117,7 @@ File <span class="ansi-green-fg">~/work/graphrag/graphrag/graphrag/query/input/l
     <span class="n">max_retries</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">token_encoder</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">"cl100k_base"</span><span class="p">)</span>
+<span class="n">token_encoder</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">encoding_for_model</span><span class="p">(</span><span class="n">llm_model</span><span class="p">)</span>
 
 <span class="n">text_embedder</span> <span class="o">=</span> <span class="n">OpenAIEmbedding</span><span class="p">(</span>
     <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
@@ -2114,7 +2139,7 @@ chat_llm = ChatOpenAI(
     max_retries=20,
 )
 
-token_encoder = tiktoken.get_encoding("cl100k_base")
+token_encoder = tiktoken.encoding_for_model(llm_model)
 
 text_embedder = OpenAIEmbedding(
     api_key=api_key,
@@ -2128,9 +2153,57 @@ text_embedder = OpenAIEmbedding(
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[3], line 12</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> embedding_model <span style="color: rgb(98,98,98)">=</span> os<span style="color: rgb(98,98,98)">.</span>environ[<span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">GRAPHRAG_EMBEDDING_MODEL</span><span style="color: rgb(175,0,0)">"</span>]
+<span class="ansi-green-intense-fg ansi-bold">      5</span> chat_llm <span style="color: rgb(98,98,98)">=</span> ChatOpenAI(
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     api_key<span style="color: rgb(98,98,98)">=</span>api_key,
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     model<span style="color: rgb(98,98,98)">=</span>llm_model,
+<span class="ansi-green-intense-fg ansi-bold">      8</span>     api_type<span style="color: rgb(98,98,98)">=</span>OpenaiApiType<span style="color: rgb(98,98,98)">.</span>OpenAI,  <span style="color: rgb(95,135,135)"># OpenaiApiType.OpenAI or OpenaiApiType.AzureOpenAI</span>
+<span class="ansi-green-intense-fg ansi-bold">      9</span>     max_retries<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">20</span>,
+<span class="ansi-green-intense-fg ansi-bold">     10</span> )
+<span class="ansi-green-fg">---&gt; 12</span> token_encoder <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">tiktoken</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">encoding_for_model</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">llm_model</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     14</span> text_embedder <span style="color: rgb(98,98,98)">=</span> OpenAIEmbedding(
+<span class="ansi-green-intense-fg ansi-bold">     15</span>     api_key<span style="color: rgb(98,98,98)">=</span>api_key,
+<span class="ansi-green-intense-fg ansi-bold">     16</span>     api_base<span style="color: rgb(98,98,98)">=</span><span class="ansi-bold" style="color: rgb(0,135,0)">None</span>,
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">     20</span>     max_retries<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">20</span>,
+<span class="ansi-green-intense-fg ansi-bold">     21</span> )
+
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/tiktoken/model.py:105</span>, in <span class="ansi-cyan-fg">encoding_for_model</span><span class="ansi-blue-fg">(model_name)</span>
+<span class="ansi-green-intense-fg ansi-bold">    100</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span style="color: rgb(0,0,255)">encoding_for_model</span>(model_name: <span style="color: rgb(0,135,0)">str</span>) <span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">&gt;</span> Encoding:
+<span class="ansi-green-intense-fg ansi-bold">    101</span> <span style="color: rgb(188,188,188)">    </span><span style="color: rgb(175,0,0)">"""Returns the encoding used by a model.</span>
+<span class="ansi-green-intense-fg ansi-bold">    102</span> 
+<span class="ansi-green-intense-fg ansi-bold">    103</span> <span style="color: rgb(175,0,0)">    Raises a KeyError if the model name is not recognised.</span>
+<span class="ansi-green-intense-fg ansi-bold">    104</span> <span style="color: rgb(175,0,0)">    """</span>
+<span class="ansi-green-fg">--&gt; 105</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> get_encoding(<span class="ansi-yellow-bg">encoding_name_for_model</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">model_name</span><span class="ansi-yellow-bg">)</span>)
+
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/tiktoken/model.py:92</span>, in <span class="ansi-cyan-fg">encoding_name_for_model</span><span class="ansi-blue-fg">(model_name)</span>
+<span class="ansi-green-intense-fg ansi-bold">     89</span>             <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> model_encoding_name
+<span class="ansi-green-intense-fg ansi-bold">     91</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> encoding_name <span class="ansi-bold" style="color: rgb(175,0,255)">is</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>:
+<span class="ansi-green-fg">---&gt; 92</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">raise</span> <span class="ansi-bold" style="color: rgb(215,95,95)">KeyError</span>(
+<span class="ansi-green-intense-fg ansi-bold">     93</span>         <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">Could not automatically map </span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>model_name<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)"> to a tokeniser. </span><span style="color: rgb(175,0,0)">"</span>
+<span class="ansi-green-intense-fg ansi-bold">     94</span>         <span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.</span><span style="color: rgb(175,0,0)">"</span>
+<span class="ansi-green-intense-fg ansi-bold">     95</span>     ) <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">     97</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> encoding_name
+
+<span class="ansi-red-fg">KeyError</span>: 'Could not automatically map  to a tokeniser. Please use `tiktoken.get_encoding` to explicitly get the tokeniser you expect.'</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2148,7 +2221,7 @@ text_embedder = OpenAIEmbedding(
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">read_community_reports</span><span class="p">(</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">read_community_reports</span><span class="p">(</span>
     <span class="n">input_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">community_report_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">COMMUNITY_REPORT_TABLE</span><span class="p">,</span>
 <span class="p">):</span>
@@ -2160,10 +2233,11 @@ text_embedder = OpenAIEmbedding(
 <span class="n">report_df</span> <span class="o">=</span> <span class="n">read_community_reports</span><span class="p">(</span><span class="n">INPUT_DIR</span><span class="p">)</span>
 <span class="n">reports</span> <span class="o">=</span> <span class="n">read_indexer_reports</span><span class="p">(</span>
     <span class="n">report_df</span><span class="p">,</span>
-    <span class="n">entity_df</span><span class="p">,</span>
+    <span class="n">community_df</span><span class="p">,</span>
     <span class="n">COMMUNITY_LEVEL</span><span class="p">,</span>
     <span class="n">content_embedding_col</span><span class="o">=</span><span class="s2">"full_content_embeddings"</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="n">read_indexer_report_embeddings</span><span class="p">(</span><span class="n">reports</span><span class="p">,</span> <span class="n">full_content_embedding_store</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-4">def read_community_reports(
     input_dir: str,
@@ -2177,10 +2251,101 @@ text_embedder = OpenAIEmbedding(
 report_df = read_community_reports(INPUT_DIR)
 reports = read_indexer_reports(
     report_df,
-    entity_df,
+    community_df,
     COMMUNITY_LEVEL,
     content_embedding_col="full_content_embeddings",
-)</div>
+)
+read_indexer_report_embeddings(reports, full_content_embedding_store)</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">FileNotFoundError</span>                         Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[4], line 10</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span>     input_path <span style="color: rgb(98,98,98)">=</span> Path(input_dir) <span style="color: rgb(98,98,98)">/</span> <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>community_report_table<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">.parquet</span><span style="color: rgb(175,0,0)">"</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> pd<span style="color: rgb(98,98,98)">.</span>read_parquet(input_path)
+<span class="ansi-green-fg">---&gt; 10</span> report_df <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">read_community_reports</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">INPUT_DIR</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span> reports <span style="color: rgb(98,98,98)">=</span> read_indexer_reports(
+<span class="ansi-green-intense-fg ansi-bold">     12</span>     report_df,
+<span class="ansi-green-intense-fg ansi-bold">     13</span>     community_df,
+<span class="ansi-green-intense-fg ansi-bold">     14</span>     COMMUNITY_LEVEL,
+<span class="ansi-green-intense-fg ansi-bold">     15</span>     content_embedding_col<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">full_content_embeddings</span><span style="color: rgb(175,0,0)">"</span>,
+<span class="ansi-green-intense-fg ansi-bold">     16</span> )
+<span class="ansi-green-intense-fg ansi-bold">     17</span> read_indexer_report_embeddings(reports, full_content_embedding_store)
+
+Cell <span class="ansi-green-fg">In[4], line 7</span>, in <span class="ansi-cyan-fg">read_community_reports</span><span class="ansi-blue-fg">(input_dir, community_report_table)</span>
+<span class="ansi-green-intense-fg ansi-bold">      5</span> <span style="color: rgb(175,0,0)">"""Embeds the full content of the community reports and saves the DataFrame with embeddings to the output path."""</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span> input_path <span style="color: rgb(98,98,98)">=</span> Path(input_dir) <span style="color: rgb(98,98,98)">/</span> <span style="color: rgb(175,0,0)">f</span><span style="color: rgb(175,0,0)">"</span><span class="ansi-bold" style="color: rgb(175,95,135)">{</span>community_report_table<span class="ansi-bold" style="color: rgb(175,95,135)">}</span><span style="color: rgb(175,0,0)">.parquet</span><span style="color: rgb(175,0,0)">"</span>
+<span class="ansi-green-fg">----&gt; 7</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">pd</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">read_parquet</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">input_path</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/parquet.py:667</span>, in <span class="ansi-cyan-fg">read_parquet</span><span class="ansi-blue-fg">(path, engine, columns, storage_options, use_nullable_dtypes, dtype_backend, filesystem, filters, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    664</span>     use_nullable_dtypes <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">False</span>
+<span class="ansi-green-intense-fg ansi-bold">    665</span> check_dtype_backend(dtype_backend)
+<span class="ansi-green-fg">--&gt; 667</span> <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">impl</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">read</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-intense-fg ansi-bold">    668</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">path</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    669</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">columns</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">columns</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    670</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">filters</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">filters</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    671</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    672</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">use_nullable_dtypes</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">use_nullable_dtypes</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    673</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">dtype_backend</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">dtype_backend</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    674</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">filesystem</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">filesystem</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    675</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    676</span> <span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/parquet.py:267</span>, in <span class="ansi-cyan-fg">PyArrowImpl.read</span><span class="ansi-blue-fg">(self, path, columns, filters, use_nullable_dtypes, dtype_backend, storage_options, filesystem, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    264</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> manager <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">array</span><span style="color: rgb(175,0,0)">"</span>:
+<span class="ansi-green-intense-fg ansi-bold">    265</span>     to_pandas_kwargs[<span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">split_blocks</span><span style="color: rgb(175,0,0)">"</span>] <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">True</span>  <span style="color: rgb(95,135,135)"># type: ignore[assignment]</span>
+<span class="ansi-green-fg">--&gt; 267</span> path_or_handle, handles, filesystem <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">_get_path_or_handle</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-intense-fg ansi-bold">    268</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">path</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    269</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">filesystem</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    270</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    271</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">rb</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">"</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    272</span> <span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    273</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
+<span class="ansi-green-intense-fg ansi-bold">    274</span>     pa_table <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>api<span style="color: rgb(98,98,98)">.</span>parquet<span style="color: rgb(98,98,98)">.</span>read_table(
+<span class="ansi-green-intense-fg ansi-bold">    275</span>         path_or_handle,
+<span class="ansi-green-intense-fg ansi-bold">    276</span>         columns<span style="color: rgb(98,98,98)">=</span>columns,
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    279</span>         <span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span>kwargs,
+<span class="ansi-green-intense-fg ansi-bold">    280</span>     )
+
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/parquet.py:140</span>, in <span class="ansi-cyan-fg">_get_path_or_handle</span><span class="ansi-blue-fg">(path, fs, storage_options, mode, is_dir)</span>
+<span class="ansi-green-intense-fg ansi-bold">    130</span> handles <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    131</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> (
+<span class="ansi-green-intense-fg ansi-bold">    132</span>     <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> fs
+<span class="ansi-green-intense-fg ansi-bold">    133</span>     <span class="ansi-bold" style="color: rgb(175,0,255)">and</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> is_dir
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    138</span>     <span style="color: rgb(95,135,135)"># fsspec resources can also point to directories</span>
+<span class="ansi-green-intense-fg ansi-bold">    139</span>     <span style="color: rgb(95,135,135)"># this branch is used for example when reading from non-fsspec URLs</span>
+<span class="ansi-green-fg">--&gt; 140</span>     handles <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">get_handle</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-intense-fg ansi-bold">    141</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">path_or_handle</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">is_text</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">False</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">storage_options</span>
+<span class="ansi-green-intense-fg ansi-bold">    142</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    143</span>     fs <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    144</span>     path_or_handle <span style="color: rgb(98,98,98)">=</span> handles<span style="color: rgb(98,98,98)">.</span>handle
+
+File <span class="ansi-green-fg">~/.cache/pypoetry/virtualenvs/graphrag-F2jvqev7-py3.11/lib/python3.11/site-packages/pandas/io/common.py:882</span>, in <span class="ansi-cyan-fg">get_handle</span><span class="ansi-blue-fg">(path_or_buf, mode, encoding, compression, memory_map, is_text, errors, storage_options)</span>
+<span class="ansi-green-intense-fg ansi-bold">    873</span>         handle <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">open</span>(
+<span class="ansi-green-intense-fg ansi-bold">    874</span>             handle,
+<span class="ansi-green-intense-fg ansi-bold">    875</span>             ioargs<span style="color: rgb(98,98,98)">.</span>mode,
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    878</span>             newline<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(175,0,0)">"</span><span style="color: rgb(175,0,0)">"</span>,
+<span class="ansi-green-intense-fg ansi-bold">    879</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    880</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">else</span>:
+<span class="ansi-green-intense-fg ansi-bold">    881</span>         <span style="color: rgb(95,135,135)"># Binary mode</span>
+<span class="ansi-green-fg">--&gt; 882</span>         handle <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">open</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">handle</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">ioargs</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    883</span>     handles<span style="color: rgb(98,98,98)">.</span>append(handle)
+<span class="ansi-green-intense-fg ansi-bold">    885</span> <span style="color: rgb(95,135,135)"># Convert BytesIO or file objects passed with an encoding</span>
+
+<span class="ansi-red-fg">FileNotFoundError</span>: [Errno 2] No such file or directory: 'inputs/operation dulce/community_reports.parquet'</pre>
 </div>
 </div>
 </div>
@@ -2205,7 +2370,16 @@ reports = read_indexer_reports(
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">context_builder</span> <span class="o">=</span> <span class="n">DRIFTSearchContextBuilder</span><span class="p">(</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">drift_params</span> <span class="o">=</span> <span class="n">DRIFTSearchConfig</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">12_000</span><span class="p">,</span>
+    <span class="n">primer_folds</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">drift_k_followups</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">n_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">context_builder</span> <span class="o">=</span> <span class="n">DRIFTSearchContextBuilder</span><span class="p">(</span>
     <span class="n">chat_llm</span><span class="o">=</span><span class="n">chat_llm</span><span class="p">,</span>
     <span class="n">text_embedder</span><span class="o">=</span><span class="n">text_embedder</span><span class="p">,</span>
     <span class="n">entities</span><span class="o">=</span><span class="n">entities</span><span class="p">,</span>
@@ -2213,13 +2387,24 @@ reports = read_indexer_reports(
     <span class="n">reports</span><span class="o">=</span><span class="n">reports</span><span class="p">,</span>
     <span class="n">entity_text_embeddings</span><span class="o">=</span><span class="n">description_embedding_store</span><span class="p">,</span>
     <span class="n">text_units</span><span class="o">=</span><span class="n">text_units</span><span class="p">,</span>
+    <span class="n">token_encoder</span><span class="o">=</span><span class="n">token_encoder</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">drift_params</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">search</span> <span class="o">=</span> <span class="n">DRIFTSearch</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">chat_llm</span><span class="p">,</span> <span class="n">context_builder</span><span class="o">=</span><span class="n">context_builder</span><span class="p">,</span> <span class="n">token_encoder</span><span class="o">=</span><span class="n">token_encoder</span>
 <span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-5">context_builder = DRIFTSearchContextBuilder(
+<div class="clipboard-copy-txt" id="cell-5">drift_params = DRIFTSearchConfig(
+    temperature=0,
+    max_tokens=12_000,
+    primer_folds=1,
+    drift_k_followups=3,
+    n_depth=3,
+    n=1,
+)
+
+context_builder = DRIFTSearchContextBuilder(
     chat_llm=chat_llm,
     text_embedder=text_embedder,
     entities=entities,
@@ -2227,6 +2412,8 @@ reports = read_indexer_reports(
     reports=reports,
     entity_text_embeddings=description_embedding_store,
     text_units=text_units,
+    token_encoder=token_encoder,
+    config=drift_params,
 )
 
 search = DRIFTSearch(
@@ -2246,21 +2433,29 @@ search = DRIFTSearch(
 <pre>
 <span class="ansi-red-fg">---------------------------------------------------------------------------</span>
 <span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[5], line 4</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> context_builder <span style="color: rgb(98,98,98)">=</span> DRIFTSearchContextBuilder(
-<span class="ansi-green-intense-fg ansi-bold">      2</span>     chat_llm<span style="color: rgb(98,98,98)">=</span>chat_llm,
-<span class="ansi-green-intense-fg ansi-bold">      3</span>     text_embedder<span style="color: rgb(98,98,98)">=</span>text_embedder,
-<span class="ansi-green-fg">----&gt; 4</span>     entities<span style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">entities</span>,
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     relationships<span style="color: rgb(98,98,98)">=</span>relationships,
-<span class="ansi-green-intense-fg ansi-bold">      6</span>     reports<span style="color: rgb(98,98,98)">=</span>reports,
-<span class="ansi-green-intense-fg ansi-bold">      7</span>     entity_text_embeddings<span style="color: rgb(98,98,98)">=</span>description_embedding_store,
-<span class="ansi-green-intense-fg ansi-bold">      8</span>     text_units<span style="color: rgb(98,98,98)">=</span>text_units,
-<span class="ansi-green-intense-fg ansi-bold">      9</span> )
-<span class="ansi-green-intense-fg ansi-bold">     11</span> search <span style="color: rgb(98,98,98)">=</span> DRIFTSearch(
-<span class="ansi-green-intense-fg ansi-bold">     12</span>     llm<span style="color: rgb(98,98,98)">=</span>chat_llm, context_builder<span style="color: rgb(98,98,98)">=</span>context_builder, token_encoder<span style="color: rgb(98,98,98)">=</span>token_encoder
-<span class="ansi-green-intense-fg ansi-bold">     13</span> )
+Cell <span class="ansi-green-fg">In[5], line 12</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> drift_params <span style="color: rgb(98,98,98)">=</span> DRIFTSearchConfig(
+<span class="ansi-green-intense-fg ansi-bold">      2</span>     temperature<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">0</span>,
+<span class="ansi-green-intense-fg ansi-bold">      3</span>     max_tokens<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">12_000</span>,
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     n<span style="color: rgb(98,98,98)">=</span><span style="color: rgb(98,98,98)">1</span>,
+<span class="ansi-green-intense-fg ansi-bold">      8</span> )
+<span class="ansi-green-intense-fg ansi-bold">     10</span> context_builder <span style="color: rgb(98,98,98)">=</span> DRIFTSearchContextBuilder(
+<span class="ansi-green-intense-fg ansi-bold">     11</span>     chat_llm<span style="color: rgb(98,98,98)">=</span>chat_llm,
+<span class="ansi-green-fg">---&gt; 12</span>     text_embedder<span style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">text_embedder</span>,
+<span class="ansi-green-intense-fg ansi-bold">     13</span>     entities<span style="color: rgb(98,98,98)">=</span>entities,
+<span class="ansi-green-intense-fg ansi-bold">     14</span>     relationships<span style="color: rgb(98,98,98)">=</span>relationships,
+<span class="ansi-green-intense-fg ansi-bold">     15</span>     reports<span style="color: rgb(98,98,98)">=</span>reports,
+<span class="ansi-green-intense-fg ansi-bold">     16</span>     entity_text_embeddings<span style="color: rgb(98,98,98)">=</span>description_embedding_store,
+<span class="ansi-green-intense-fg ansi-bold">     17</span>     text_units<span style="color: rgb(98,98,98)">=</span>text_units,
+<span class="ansi-green-intense-fg ansi-bold">     18</span>     token_encoder<span style="color: rgb(98,98,98)">=</span>token_encoder,
+<span class="ansi-green-intense-fg ansi-bold">     19</span>     config<span style="color: rgb(98,98,98)">=</span>drift_params,
+<span class="ansi-green-intense-fg ansi-bold">     20</span> )
+<span class="ansi-green-intense-fg ansi-bold">     22</span> search <span style="color: rgb(98,98,98)">=</span> DRIFTSearch(
+<span class="ansi-green-intense-fg ansi-bold">     23</span>     llm<span style="color: rgb(98,98,98)">=</span>chat_llm, context_builder<span style="color: rgb(98,98,98)">=</span>context_builder, token_encoder<span style="color: rgb(98,98,98)">=</span>token_encoder
+<span class="ansi-green-intense-fg ansi-bold">     24</span> )
 
-<span class="ansi-red-fg">NameError</span>: name 'entities' is not defined</pre>
+<span class="ansi-red-fg">NameError</span>: name 'text_embedder' is not defined</pre>
 </div>
 </div>
 </div>
